@@ -1,1 +1,1 @@
-# OsloMet-KARTLEGGING-AV-OMFANGET-AV-HATEFULLE-ELLER-DISKRIMINERENDE-YTRINGER
+# Codes and model for the report Kartlegging av omfanget av hatefulle eller diskriminerende ytringer mot muslimer - OsloMet
