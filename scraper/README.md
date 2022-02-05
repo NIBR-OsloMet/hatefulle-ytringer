@@ -1,7 +1,7 @@
 # facebook-comment-scraper
 A Selenium-based Python script that scrapes comments from Facebook posts. It can
-be used stand-alone or in conjuction with services such as [CrowdTangle]
-(https://www.crowdtangle.com).
+be used stand-alone or in conjuction with services such as
+[CrowdTangle](https://www.crowdtangle.com).
 
 The script requires Selenium with ChromeDriver. This module, along with other
 dependencies, should be put in a virtual environment. 
