@@ -1,0 +1,69 @@
+#Request packages
+library(tidyverse)
+library(httr)
+library(jsonlite)
+
+#Create autohorization and define parameters for your search
+
+bearer_token = "enter your bearer token here"
+
+next_token <- NULL
+
+tweets_search_all <- data.frame()
+
+headers = c(
+  `Authorization` = sprintf('Bearer %s', bearer_token)
+)
+
+params = list(
+  `query` = '(muslim OR islam OR islamisering OR snikislamisering OR pakkis OR muslimer OR uintegrebare OR Mohammed OR Muhammad OR jihad OR profet OR koran OR taqiyya OR eurabia OR hijab OR niqab OR nikab OR innvandring OR asylsøker OR flyktning) lang:no -is:retweet', 
+  `max_results` = '100',
+  `start_time` = '2010-01-01T00:00:00Z',
+  `end_time` = '2021-09-22T23:59:00.000Z',
+  `tweet.fields` = 'author_id,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,possibly_sensitive,public_metrics,referenced_tweets,reply_settings,source,text',
+  #`pagination_token` = paste0(next_token)
+  `next_token` = paste0(next_token)
+  )
+
+
+response <- httr::GET(url = 'https://api.twitter.com/2/tweets/search/all', httr::add_headers(.headers=headers), query = params)
+
+obj <- httr::content(response, as = "text")
+
+# If you to flatten the retrieved json
+json_data <- fromJSON(obj, flatten = TRUE) %>% as.data.frame
+
+tweets_search_all <- json_data
+
+# Create a loop with the pagination token and consolidate all tweets in a single data frame
+
+next_token <- json_data$meta.next_token[1]
+
+while(!is.null(next_token)) {
+  
+  params = list(
+    `query` = '(muslim OR islam OR islamisering OR snikislamisering OR pakkis OR muslimer OR uintegrebare OR Mohammed OR Muhammad OR jihad OR profet OR koran OR taqiyya OR eurabia OR hijab OR niqab OR nikab OR innvandring OR asylsøker OR flyktning) lang:no -is:retweet',
+    `max_results` = '100',
+    `start_time` = '2010-01-01T00:00:00Z',
+    `end_time` = '2021-09-22T23:59:00.000Z',
+    `tweet.fields` = 'author_id,conversation_id,created_at,entities,geo,id,in_reply_to_user_id,lang,possibly_sensitive,public_metrics,referenced_tweets,reply_settings,source,text',
+    `next_token` = paste0(next_token)
+  )
+  
+  response <- httr::GET(url = 'https://api.twitter.com/2/tweets/search/all', httr::add_headers(.headers=headers), query = params)
+  
+  obj <- httr::content(response, as = "text")
+  
+  json_data <- fromJSON(obj, flatten = TRUE) %>% as.data.frame
+  
+  tweets_search_all <- bind_rows(tweets_search_all, json_data)
+  
+  next_token <- json_data$meta.next_token[1]
+  
+  Sys.sleep(3)
+  
+}
+
+write_rds(tweets_search_all, "tweets_search_all.rds")
+
+
